@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak Struk dengan WhatsApp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        h1 {
+            color: #075e54;
+            text-align: center;
+        }
+        .struk-container {
+            background: white;
+            padding: 20px;
+            border: 1px dashed #ccc;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .struk-header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .struk-body {
+            margin-bottom: 20px;
+        }
+        .struk-footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .whatsapp-section {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #25D366;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #128C7E;
+        }
+        .no-print {
+            display: block;
+        }
+        .print-only {
+            display: none;
+        }
+        @media print {
+            .no-print {
+                display: none;
+            }
+            .print-only {
+                display: block;
+                text-align: center;
+                font-style: italic;
+                margin-top: 20px;
+            }
+            .struk-container {
+                border: none;
+            }
+        }
+        #strukCanvas {
+            width: 100%;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>STRUK TRANSAKSI</h1>
+        
+        <div class="struk-container" id="strukContent">
+            <div class="struk-header">
+                <h2>Toko ABC</h2>
+                <p>Jl. Contoh No. 123, Kota</p>
+                <p>Telp: 08123456789</p>
+            </div>
+            
+            <div class="struk-body">
+                <p>No. Transaksi: TRX-20230001</p>
+                <p>Tanggal: <span id="date"></span> <span id="time"></span></p>
+                <hr>
+                
+                <table width="100%">
+                    <tr>
+                        <td>1. Produk A</td>
+                        <td align="right">Rp 50.000</td>
+                    </tr>
+                    <tr>
+                        <td>2. Produk B</td>
+                        <td align="right">Rp 75.000</td>
+                    </tr>
+                    <tr>
+                        <td>3. Produk C</td>
+                        <td align="right">Rp 25.000</td>
+                    </tr>
+                </table>
+                
+                <hr>
+                <table width="100%">
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td align="right"><strong>Rp 150.000</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Tunai</td>
+                        <td align="right">Rp 200.000</td>
+                    </tr>
+                    <tr>
+                        <td>Kembali</td>
+                        <td align="right">Rp 50.000</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="struk-footer">
+                <p>Terima kasih telah berbelanja</p>
+                <p>Barang yang sudah dibeli tidak dapat ditukar/dikembalikan</p>
+            </div>
+            
+            <div class="print-only">
+                Dokumen ini telah dicetak pada <span id="print-date"></span>
+            </div>
+        </div>
+        
+        <!-- Canvas untuk menangkap struk sebagai gambar -->
+        <canvas id="strukCanvas" class="no-print"></canvas>
+        
+        <div class="whatsapp-section no-print">
+            <h2>Kirim Struk ke WhatsApp</h2>
+            
+            <div class="input-group">
+                <label for="phone">Masukkan Nomor WhatsApp:</label>
+                <input type="tel" id="phone" placeholder="Contoh: 6281234567890" pattern="[0-9]{10,15}">
+                <small>Format: 62xxxxxxxxxxx (tanpa + atau 0 di depan)</small>
+            </div>
+            
+            <button onclick="captureAndSend()">Kirim Struk ke WhatsApp</button>
+            <button onclick="window.print()">Cetak Struk</button>
+        </div>
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        // Menampilkan tanggal dan waktu saat ini
+        const today = new Date();
+        document.getElementById('date').textContent = today.toLocaleDateString('id-ID');
+        document.getElementById('time').textContent = today.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+        document.getElementById('print-date').textContent = today.toLocaleDateString('id-ID') + ' ' + today.toLocaleTimeString('id-ID');
+        
+        // Fungsi untuk menangkap struk sebagai gambar dan mengirim ke WhatsApp
+        function captureAndSend() {
+            const phoneNumber = document.getElementById('phone').value;
+            
+            if (!phoneNumber) {
+                alert('Silakan masukkan nomor WhatsApp terlebih dahulu');
+                return;
+            }
+            
+            // Menangkap struk sebagai gambar
+            html2canvas(document.getElementById('strukContent')).then(canvas => {
+                // Mengkonversi canvas ke blob
+                canvas.toBlob(function(blob) {
+                    // Membuat URL objek dari blob
+                    const imageUrl = URL.createObjectURL(blob);
+                    
+                    // Membuka WhatsApp dengan nomor dan gambar
+                    const whatsappUrl = `https://wa.me/${phoneNumber}?text=Berikut%20struk%20pembelian%20anda`;
+                    window.open(whatsappUrl, '_blank');
+                    
+                    // Untuk benar-benar mengirim gambar, Anda perlu menggunakan API WhatsApp Business
+                    // Solusi ini akan membuka chat WhatsApp dengan teks, tapi gambar perlu dikirim manual
+                    // Alternatif lain adalah mengupload gambar ke server dan mengirim link
+                    
+                }, 'image/jpeg', 0.9);
+            });
+        }
+        
+        // Validasi input nomor telepon
+        document.getElementById('phone').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        
+        // Render canvas preview
+        html2canvas(document.getElementById('strukContent')).then(canvas => {
+            document.getElementById('strukCanvas').appendChild(canvas);
+        });
+    </script>
+</body>
+</html>
